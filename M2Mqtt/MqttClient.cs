@@ -466,6 +466,8 @@ namespace uPLibrary.Networking.M2Mqtt
             this.channel = new MqttNetworkChannel(this.brokerHostName, this.brokerPort, secure, caCert, clientCert, sslProtocol, userCertificateValidationCallback, userCertificateSelectionCallback);
 #elif (WINDOWS_APP || WINDOWS_PHONE_APP)
             this.channel = new MqttNetworkChannel(this.brokerHostName, this.brokerPort, secure, sslProtocol);
+#elif ( COMPACT_FRAMEWORK )
+			this.channel = new CENetworkChannel( this.brokerHostName, this.brokerPort, secure, sslProtocol );
 #else
             this.channel = new MqttNetworkChannel(this.brokerHostName, this.brokerPort, secure, caCert, clientCert, sslProtocol);
 #endif
