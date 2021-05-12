@@ -17,7 +17,7 @@ Contributors:
 #if SSL
 #if (MF_FRAMEWORK_VERSION_V4_2 || MF_FRAMEWORK_VERSION_V4_3)
 using Microsoft.SPOT.Net.Security;
-#else
+#elif( !COMPACT_FRAMEWORK )
 using System.Net.Security;
 using System.Security.Authentication;
 #endif
@@ -73,7 +73,7 @@ namespace uPLibrary.Networking.M2Mqtt
         /// </summary>
         public int RemotePort { get { return this.remotePort; } }
 
-#if SSL
+#if ( SSL && !COMPACT_FRAMEWORK )
         // SSL stream
         private SslStream sslStream;
 #if (!MF_FRAMEWORK_VERSION_V4_2 && !MF_FRAMEWORK_VERSION_V4_3)
@@ -87,8 +87,8 @@ namespace uPLibrary.Networking.M2Mqtt
         public bool DataAvailable
         {
             get
-            {
-#if SSL
+			{
+#if ( SSL && !COMPACT_FRAMEWORK )
 #if (MF_FRAMEWORK_VERSION_V4_2 || MF_FRAMEWORK_VERSION_V4_3)
                 if (secure)
                     return this.sslStream.DataAvailable;
@@ -101,7 +101,7 @@ namespace uPLibrary.Networking.M2Mqtt
                     return (this.socket.Available > 0);
 #endif
 #else
-                return (this.socket.Available > 0);
+				return (this.socket.Available > 0);
 #endif
             }
         }
@@ -230,7 +230,7 @@ namespace uPLibrary.Networking.M2Mqtt
             // try connection to the broker
             this.socket.Connect(new IPEndPoint(this.remoteIpAddress, this.remotePort));
 
-#if SSL
+#if ( SSL && !COMPACT_FRAMEWORK )
             // secure channel requested
             if (secure)
             {
@@ -263,7 +263,7 @@ namespace uPLibrary.Networking.M2Mqtt
 #endif
             }
 #endif
-        }
+		}
 
         /// <summary>
         /// Send data on the network channel
@@ -271,8 +271,8 @@ namespace uPLibrary.Networking.M2Mqtt
         /// <param name="buffer">Data buffer to send</param>
         /// <returns>Number of byte sent</returns>
         public int Send(byte[] buffer)
-        {
-#if SSL
+		{
+#if ( SSL && !COMPACT_FRAMEWORK )
             if (this.secure)
             {
                 this.sslStream.Write(buffer, 0, buffer.Length);
@@ -282,7 +282,7 @@ namespace uPLibrary.Networking.M2Mqtt
             else
                 return this.socket.Send(buffer, 0, buffer.Length, SocketFlags.None);
 #else
-            return this.socket.Send(buffer, 0, buffer.Length, SocketFlags.None);
+			return this.socket.Send(buffer, 0, buffer.Length, SocketFlags.None);
 #endif
         }
 
@@ -292,8 +292,8 @@ namespace uPLibrary.Networking.M2Mqtt
         /// <param name="buffer">Data buffer for receiving data</param>
         /// <returns>Number of bytes received</returns>
         public int Receive(byte[] buffer)
-        {
-#if SSL
+		{
+#if ( SSL && !COMPACT_FRAMEWORK )
             if (this.secure)
             {
                 // read all data needed (until fill buffer)
@@ -325,7 +325,7 @@ namespace uPLibrary.Networking.M2Mqtt
                 return buffer.Length;
             }
 #else
-            // read all data needed (until fill buffer)
+			// read all data needed (until fill buffer)
             int idx = 0, read = 0;
             while (idx < buffer.Length)
             {
@@ -363,8 +363,8 @@ namespace uPLibrary.Networking.M2Mqtt
         /// Close the network channel
         /// </summary>
         public void Close()
-        {
-#if SSL
+		{
+#if ( SSL && !COMPACT_FRAMEWORK )
             if (this.secure)
             {
 #if (!MF_FRAMEWORK_VERSION_V4_2 && !MF_FRAMEWORK_VERSION_V4_3)
@@ -374,7 +374,7 @@ namespace uPLibrary.Networking.M2Mqtt
             }
             this.socket.Close();
 #else
-            this.socket.Close();
+			this.socket.Close();
 #endif
         }
 
@@ -382,8 +382,8 @@ namespace uPLibrary.Networking.M2Mqtt
         /// Accept connection from a remote client
         /// </summary>
         public void Accept()
-        {
-#if SSL
+		{
+#if ( SSL && !COMPACT_FRAMEWORK )
             // secure channel requested
             if (secure)
             {
@@ -398,7 +398,7 @@ namespace uPLibrary.Networking.M2Mqtt
 
             return;
 #else
-            return;
+			return;
 #endif
         }
     }
@@ -422,49 +422,5 @@ namespace uPLibrary.Networking.M2Mqtt
                 AddressFamily.InterNetworkV6 : AddressFamily.InterNetwork;
 #endif
         }
-    }
-
-    /// <summary>
-    /// MQTT SSL utility class
-    /// </summary>
-    public static class MqttSslUtility
-    {
-#if (!MF_FRAMEWORK_VERSION_V4_2 && !MF_FRAMEWORK_VERSION_V4_3 && !COMPACT_FRAMEWORK)
-        public static SslProtocols ToSslPlatformEnum(MqttSslProtocols mqttSslProtocol)
-        {
-            switch (mqttSslProtocol)
-            {
-                case MqttSslProtocols.None:
-                    return SslProtocols.None;
-                case MqttSslProtocols.SSLv3:
-                    return SslProtocols.Ssl3;
-                case MqttSslProtocols.TLSv1_0:
-                    return SslProtocols.Tls;
-                case MqttSslProtocols.TLSv1_1:
-                    return SslProtocols.Tls11;
-                case MqttSslProtocols.TLSv1_2:
-                    return SslProtocols.Tls12;
-                default:
-                    throw new ArgumentException("SSL/TLS protocol version not supported");
-            }
-        }
-#elif (MF_FRAMEWORK_VERSION_V4_2 || MF_FRAMEWORK_VERSION_V4_3)
-        public static SslProtocols ToSslPlatformEnum(MqttSslProtocols mqttSslProtocol)
-        {
-            switch (mqttSslProtocol)
-            {
-                case MqttSslProtocols.None:
-                    return SslProtocols.None;
-                case MqttSslProtocols.SSLv3:
-                    return SslProtocols.SSLv3;
-                case MqttSslProtocols.TLSv1_0:
-                    return SslProtocols.TLSv1;
-                case MqttSslProtocols.TLSv1_1:
-                case MqttSslProtocols.TLSv1_2:
-                default:
-                    throw new ArgumentException("SSL/TLS protocol version not supported");
-            }
-        }
-#endif
     }
 }
