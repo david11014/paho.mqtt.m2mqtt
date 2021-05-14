@@ -185,7 +185,13 @@ namespace uPLibrary.Networking.M2Mqtt
 		/// <returns>Number of byte sent</returns>
 		public int Send( byte[] buffer )
 		{
-			return Send( m_socketHandle, buffer, buffer.Length );
+			int nSendDataCount = Send( m_socketHandle, buffer, buffer.Length );
+
+			if( nSendDataCount < 0 ) {
+				throw new Exception( "Send Error" );
+			}
+
+			return nSendDataCount;
 		}
 
 		/// <summary>

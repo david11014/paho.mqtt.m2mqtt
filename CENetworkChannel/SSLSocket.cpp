@@ -15,6 +15,8 @@ CSSLSocket::CSSLSocket( CHAR szRemoteHostIP[], INT nRemoteHostPort, BOOL bSecure
 	memset( m_szRemoteHostIP, '\0', MAX_IP_STR_LEN );
 	strcpy_s( m_szRemoteHostIP, MAX_IP_STR_LEN, szRemoteHostIP );
 
+	// init setting
+	m_bConnected	  = FALSE;
 	m_nRemoteHostPort = nRemoteHostPort;
 	m_Protocols		  = Protocols;
 	m_bSecure		  = bSecure;
@@ -34,6 +36,10 @@ INT CSSLSocket::Receive( BYTE buffer[], INT nLength, INT timeout )
 // Receive data from the network channel with a specified timeout
 // Note: NOT support timeout now
 {
+
+	if( m_bConnected == FALSE ) {
+		return 0;
+	}
 	if( m_bSecure == TRUE ) {
 		return CSSLAdapter::SSL_read( m_pSSL, buffer, nLength );
 	}
@@ -45,12 +51,23 @@ INT CSSLSocket::Receive( BYTE buffer[], INT nLength, INT timeout )
 INT CSSLSocket::Send( BYTE buffer[], INT nLength )
 // Send data on the network channel to the broker
 {
+
+	INT nSendCount = 0;
+
+	if( m_bConnected == FALSE ) {
+		return 0;
+	}
+
 	if( m_bSecure == TRUE ) {
-		return CSSLAdapter::SSL_write( m_pSSL, buffer, nLength );
+		nSendCount = CSSLAdapter::SSL_write( m_pSSL, buffer, nLength );
 	}
 	else {
-		return ::send( m_Socket, ( CHAR * )( void * )buffer, nLength, 0 );
+		nSendCount = ::send( m_Socket, ( CHAR * )( void * )buffer, nLength, 0 );
 	}
+
+	}
+}
+	return nSendCount;
 }
 
 void CSSLSocket::Close( void )
@@ -139,6 +156,11 @@ BOOL CSSLSocket::InitSSL( void )
 void CSSLSocket::DeinitSocket( void )
 // free the socket resouse
 {
+
+	if( m_bConnected == FALSE ) {
+		return;
+	}
+
 	// clean SSL setting
 	if( m_bSecure == TRUE ) {
 		if( m_pSSL != NULL ) {
@@ -147,18 +169,27 @@ void CSSLSocket::DeinitSocket( void )
 
 			// Free resource
 			CSSLAdapter::SSL_free( m_pSSL );
+
+			m_pSSL = NULL;
 		}
 
 		if( m_pSSLContext != NULL ) {
 			// free context
 			CSSLAdapter::SSL_CTX_free( m_pSSLContext );
+
+			m_pSSLContext = NULL;
 		}
 	}
 
 	if( m_Socket != INVALID_SOCKET ) {
 		// close socket
 		closesocket( m_Socket );
+
+		m_Socket = INVALID_SOCKET;
 	}
+
+	m_bConnected = FALSE;
+
 }
 
 SOCKET CSSLSocket::CreateSocket( CHAR szRemoteHostIP[], INT port )
@@ -191,7 +222,7 @@ SSL_CTX *CSSLSocket::CreateSSLContext()
 {
 	const SSL_METHOD *method;
 	SSL_CTX *		  ctx;
-	// Support only TLSv1.2
+	// use TLS method, it will auto support SSLv3, TLSv1, TLSv1.1 and TLSv1.2
 	method = CSSLAdapter::TLS_client_method();
 	// Create context
 	ctx = CSSLAdapter::SSL_CTX_new( method );
