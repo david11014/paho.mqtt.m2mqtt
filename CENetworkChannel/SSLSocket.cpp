@@ -38,16 +38,70 @@ INT CSSLSocket::Receive( BYTE buffer[], INT nLength, INT timeout )
 // Receive data from the network channel with a specified timeout
 // Note: NOT support timeout now
 {
+	// clear buffer
+	memset( buffer, 0, nLength * sizeof( BYTE ) );
 
 	if( m_bConnected == FALSE ) {
 		return 0;
 	}
-	if( m_bSecure == TRUE ) {
-		return CSSLAdapter::SSL_read( m_pSSL, buffer, nLength );
+
+	// read data from queue first
+	int nRemainDataCount = nLength - ReadDataFromQueue( buffer, nLength );
+
+	// has enouth data
+	if( nRemainDataCount == 0 ) {
+		return nLength;
 	}
-	else {
-		return ::recv( m_Socket, ( CHAR * )( void * )buffer, nLength, 0 );
+
+	// receive all data
+	int nTotalRead = 0, nReadCount = 0;
+	while( TRUE )
+	{
+		// receive data
+		if( m_bSecure == TRUE ) {
+			nReadCount = CSSLAdapter::SSL_read( m_pSSL, ( m_ReceiveBuffer + nTotalRead ), RECV_SIZE - nTotalRead + 1 );
+		}
+		else {
+			nReadCount = ::recv( m_Socket, ( CHAR * )( void * )( m_ReceiveBuffer + nTotalRead ), RECV_SIZE - nTotalRead + 1, 0 );
+		}
+
+		// add receive data count
+		nTotalRead += nReadCount;
+
+		// check is data receive finish or not firs
+		if( nTotalRead >= nLength ) {
+			break;
+		}
+		// no data to read
+		else if( nReadCount == 0 ) {
+			break;
+		}
+		// receive fail
+		else if( nReadCount < 0 ) {
+#ifdef SSLSOCKET_DEBUG // for SSL connect debug
+			printf( "SSL read fail\n" );
+			printf( "Socket Error code: %d\n", WSAGetLastError() );
+			printf( "Socket %d\n", m_Socket );
+
+			CHAR   buffer[ 256 ] = {};
+			u_long err			 = CSSLAdapter::ERR_get_error();
+			while( err != 0 ) {
+				CSSLAdapter::ERR_error_string_n( err, buffer, sizeof( buffer ) );
+				printf( "*** %s\n", buffer );
+
+				err = CSSLAdapter::ERR_get_error();
+			}
+#endif
+			return -1;
+		}
 	}
+	// record receive data
+	PutDataToQueue( m_ReceiveBuffer, nTotalRead );
+
+	// copy data to output buffer
+	ReadDataFromQueue( buffer + ( nLength - nRemainDataCount ), nRemainDataCount );
+
+	return nLength;
 }
 
 INT CSSLSocket::Send( BYTE buffer[], INT nLength )
@@ -256,4 +310,46 @@ SSL_CTX *CSSLSocket::CreateSSLContext()
 	ctx = CSSLAdapter::SSL_CTX_new( method );
 
 	return ctx;
+}
+
+int CSSLSocket::ReadDataFromQueue( BYTE buffer[], INT nLength )
+// read data from queue, return read data count
+{
+	if( m_nQueueLen <= 0 || nLength <= 0 || buffer == NULL ) {
+		return 0;
+	}
+
+	// make sure not copy too many data
+	int nCopyLen = min( nLength, m_nQueueLen );
+
+	// copy dat from queue
+	memcpy( buffer, m_QueueData, nCopyLen );
+
+	// move queue data
+	if( m_nQueueLen - nCopyLen > 0 ) {
+		memmove( m_QueueData, m_QueueData + nCopyLen, ( m_nQueueLen - nCopyLen ) );
+	}
+
+	// update length
+	m_nQueueLen -= nCopyLen;
+
+	return nCopyLen;
+}
+
+void CSSLSocket::PutDataToQueue( BYTE buffer[], INT nLength )
+// put data to queue
+{
+	// check length
+	if( nLength <= 0 || buffer == NULL || m_nQueueLen == RECV_SIZE ) {
+		return;
+	}
+
+	// make sure not copy too many data
+	int nCopyLen = min( nLength, ( RECV_SIZE - m_nQueueLen ) );
+
+	// copy dat from queue
+	memcpy( m_QueueData + m_nQueueLen, buffer, nCopyLen );
+
+	// update length
+	m_nQueueLen += nCopyLen;
 }

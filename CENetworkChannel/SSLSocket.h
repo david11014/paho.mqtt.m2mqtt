@@ -75,6 +75,12 @@ private:
 
 	// create ssl context
 	SSL_CTX *CreateSSLContext();
+
+	// read data from queue, return read data count
+	int ReadDataFromQueue( BYTE buffer[], INT nLength );
+
+	// put data to queue
+	void PutDataToQueue( BYTE buffer[], INT nLength );
 };
 
 #endif	  // !defined( _SSLSOCKET_H____INCLUDED_ )
