@@ -4,6 +4,8 @@
 #include "OpenSSLAdapter.h"
 #include "SSLSocket.h"
 
+// #define SSLSOCKET_DEBUG
+
 // =============== //
 // public function //
 // =============== //
@@ -65,8 +67,27 @@ INT CSSLSocket::Send( BYTE buffer[], INT nLength )
 		nSendCount = ::send( m_Socket, ( CHAR * )( void * )buffer, nLength, 0 );
 	}
 
+#ifdef SSLSOCKET_DEBUG // for SSL connect debug
+	printf( "------\n" );
+	printf( "Send %d data\n", nLength );
+	printf( "Result Send %d data\n", nSendCount );
+
+	if( nSendCount < 0 ) {
+		printf( "SSL send fail\n" );
+		printf( "Socket Error code: %d\n", WSAGetLastError() );
+		printf( "Socket %d\n", m_Socket );
+
+		CHAR   buffer[ 256 ] = {};
+		u_long err			 = CSSLAdapter::ERR_get_error();
+		while( err != 0 ) {
+			CSSLAdapter::ERR_error_string_n( err, buffer, sizeof( buffer ) );
+			printf( "*** %s\n", buffer );
+
+			err = CSSLAdapter::ERR_get_error();
+		}
 	}
-}
+#endif
+
 	return nSendCount;
 }
 
@@ -76,7 +97,7 @@ void CSSLSocket::Close( void )
 	DeinitSocket();
 }
 
-void CSSLSocket::Connect( void )
+BOOL CSSLSocket::Connect( void )
 // Connect to remote server
 {
 	if( m_bConnected == TRUE ) {
@@ -134,6 +155,8 @@ BOOL CSSLSocket::InitSSL( void )
 
 	INT nConnectResult = CSSLAdapter::SSL_connect( m_pSSL );
 	if( nConnectResult <= 0 ) {
+
+#ifdef SSLSOCKET_DEBUG // for SSL connect debug
 		printf( "SSL connect fail\n" );
 		printf( "Socket Error code: %d\n", WSAGetLastError() );
 		printf( "Socket %d\n", m_Socket );
@@ -146,9 +169,14 @@ BOOL CSSLSocket::InitSSL( void )
 
 			err = CSSLAdapter::ERR_get_error();
 		}
+#endif
 		return FALSE;
 	}
-	printf( "SSL connect success\n" );
+
+#ifdef SSLSOCKET_DEBUG // for SSL connect debug
+	printf( "SSL connect success, using %s\n", CSSLAdapter::SSL_get_version( m_pSSL ) );
+#endif
+
 
 	return TRUE;
 }
