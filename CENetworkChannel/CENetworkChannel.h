@@ -28,7 +28,7 @@ void CENETAPI DeinitNetworkChannel( INT nChHandle );
 /// <summary>
 /// Receive data from the network channel with a specified timeout
 /// </summary>
-/// <param name="nChHandle">Socket handle</param>
+/// <param name="nChHandle">Channel handle</param>
 /// <param name="buffer">Data buffer for receiving data</param>
 /// <param name="Length">Data buffer length</param>
 /// <param name="timeout">Timeout on receiving (in milliseconds) Note: note support now</param>
@@ -38,23 +38,23 @@ INT CENETAPI Receive( INT nChHandle, BYTE buffer[], INT Length, INT timeout = 0 
 /// <summary>
 /// Send data on the network channel to the broker
 /// </summary>
-/// <param name="nChHandle">Socket handle</param>
+/// <param name="nChHandle">Channel handle</param>
 /// <param name="buffer">Data buffer to send</param>
 /// <param name="Length">Data buffer length</param>
 /// <returns>Number of byte sent</returns>
 INT CENETAPI Send( INT nChHandle, BYTE buffer[], INT Length );
 
 /// <summary>
-/// Close the network channel
+/// Close the network socket
 /// </summary>
-/// <param name="nChHandle">Socket handle</param>
+/// <param name="nChHandle">Channel handle</param>
 void CENETAPI Close( INT nChHandle );
 
 /// <summary>
 /// Connect to remote server
 /// </summary>
-/// <param name="nChHandle">Socket handle</param>
-void CENETAPI Connect( INT nChHandle );
+/// <param name="nChHandle">Channel handle</param>
+/// <returns>connect success will return TRUE</returns>
 
 }	 // extern "C"
 

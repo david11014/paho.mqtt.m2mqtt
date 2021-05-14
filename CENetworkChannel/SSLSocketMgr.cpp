@@ -69,7 +69,7 @@ INT CSSLSocketMgr::Receive( INT nChHandle, BYTE buffer[], INT Length, INT timeou
 /// <summary>
 /// Receive data from the network channel with a specified timeout
 /// </summary>
-/// <param name="nChHandle">Socket handle</param>
+/// <param name="nChHandle">Channel handle</param>
 /// <param name="buffer">Data buffer for receiving data</param>
 /// <param name="Length">Data buffer length</param>
 /// <param name="timeout">Timeout on receiving (in milliseconds) Note: note support now</param>
@@ -87,7 +87,7 @@ INT CSSLSocketMgr::Send( INT nChHandle, BYTE buffer[], INT Length )
 /// <summary>
 /// Send data on the network channel to the broker
 /// </summary>
-/// <param name="nChHandle">Socket handle</param>
+/// <param name="nChHandle">Channel handle</param>
 /// <param name="buffer">Data buffer to send</param>
 /// <returns>Number of byte sent</returns>
 {
@@ -103,7 +103,7 @@ void CSSLSocketMgr::Close( INT nChHandle )
 /// <summary>
 /// Close the network channel
 /// </summary>
-/// <param name="nChHandle">Socket handle</param>
+/// <param name="nChHandle">Channel handle</param>
 {
 	// check handle
 	if( nChHandle < 0 || ( UINT )nChHandle >= m_SSLSocketList.size() || m_SSLSocketList[ nChHandle ] == NULL ) {
@@ -112,17 +112,13 @@ void CSSLSocketMgr::Close( INT nChHandle )
 
 	// close socket
 	m_SSLSocketList[ nChHandle ]->Close();
-
-	// free the socket
-	delete m_SSLSocketList[ nChHandle ];
-	m_SSLSocketList[ nChHandle ] = NULL;
 }
 
 void CSSLSocketMgr::Connect( INT nChHandle )
 /// <summary>
 /// Connect to remote server
 /// </summary>
-/// <param name="nChHandle">Socket handle</param>
+/// <param name="nChHandle">Channel handle</param>
 {
 	// check handle
 	if( nChHandle < 0 || ( UINT )nChHandle >= m_SSLSocketList.size() || m_SSLSocketList[ nChHandle ] == NULL ) {
@@ -141,7 +137,7 @@ INT CSSLSocketMgr::RegistrySocket( CSSLSocket *pSSLSocket )
 /// registry socket
 /// </summary>
 /// <param name="pSSLSocket">SSL socket want to registry</param>
-/// <returns>socket handle</returns>
+/// <returns>Channel handle</returns>
 {
 	// find empty slot first
 	for( UINT i = 0; i < m_SSLSocketList.size(); i++ ) {

@@ -29,7 +29,7 @@ namespace uPLibrary.Networking.M2Mqtt
 		/// <summary>
 		/// Receive data from the network channel with a specified timeout
 		/// </summary>
-		/// <param name="nChHandle">Socket handle</param>
+		/// <param name="nChHandle">Channel handle</param>
 		/// <param name="buffer">Data buffer for receiving data</param>
 		/// <param name="Length">Data buffer length</param>
 		/// <param name="timeout">Timeout on receiving (in milliseconds) Note: note support now</param>
@@ -40,7 +40,7 @@ namespace uPLibrary.Networking.M2Mqtt
 		/// <summary>
 		/// Send data on the network channel to the broker
 		/// </summary>
-		/// <param name="nChHandle">Socket handle</param>
+		/// <param name="nChHandle">Channel handle</param>
 		/// <param name="buffer">Data buffer to send</param>
 		/// <param name="Length">Data buffer length</param>
 		/// <returns>Number of byte sent</returns>
@@ -50,14 +50,14 @@ namespace uPLibrary.Networking.M2Mqtt
 		/// <summary>
 		/// Close the network channel
 		/// </summary>
-		/// <param name="nChHandle">Socket handle</param>
+		/// <param name="nChHandle">Channel handle</param>
 		[DllImport( "CENetworkChannel.dll" )]
 		public static extern void Close( int nChHandle );
 
 		/// <summary>
 		/// Connect to remote server
 		/// </summary>
-		/// <param name="nChHandle">Socket handle</param>
+		/// <param name="nChHandle">Channel handle</param>
 		[DllImport( "CENetworkChannel.dll" )]
 		public static extern void Connect( int nChHandle );
 

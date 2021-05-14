@@ -35,7 +35,7 @@ public:
 	/// <summary>
 	/// Receive data from the network channel with a specified timeout
 	/// </summary>
-	/// <param name="nChHandle">Socket handle</param>
+	/// <param name="nChHandle">Channel handle</param>
 	/// <param name="buffer">Data buffer for receiving data</param>
 	/// <param name="Length">Data buffer length</param>
 	/// <param name="timeout">Timeout on receiving (in milliseconds) Note: note support now</param>
@@ -45,7 +45,7 @@ public:
 	/// <summary>
 	/// Send data on the network channel to the broker
 	/// </summary>
-	/// <param name="nChHandle">Socket handle</param>
+	/// <param name="nChHandle">Channel handle</param>
 	/// <param name="buffer">Data buffer to send</param>
 	/// <param name="Length">Data buffer length</param>
 	/// <returns>Number of byte sent</returns>
@@ -54,14 +54,14 @@ public:
 	/// <summary>
 	/// Close the network channel
 	/// </summary>
-	/// <param name="nChHandle">Socket handle</param>
+	/// <param name="nChHandle">Channel handle</param>
 	void Close( INT nChHandle );
 
 	/// <summary>
 	/// Connect to remote server
 	/// </summary>
-	/// <param name="nChHandle">Socket handle</param>
-	void Connect( INT nChHandle );
+	/// <param name="nChHandle">Channel handle</param>
+	/// <returns>connect success will return TRUE</returns>
 
 private:
 	// flag of winsock is init or not
@@ -75,7 +75,7 @@ private:
 	/// registry socket
 	/// </summary>
 	/// <param name="pSSLSocket">SSL socket want to registry</param>
-	/// <returns>socket handle</returns>
+	/// <returns>Channel handle</returns>
 	INT RegistrySocket( CSSLSocket *pSSLSocket );
 
 };
