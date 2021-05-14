@@ -79,6 +79,8 @@ namespace uPLibrary.Networking.M2Mqtt
 		// SSL/TLS protocol version
 		private MqttSslProtocols m_sslProtocol;
 
+		private const int INVALID_SOCKET = -1;
+
 		#endregion // private member data
 
 		#region public method
@@ -94,7 +96,7 @@ namespace uPLibrary.Networking.M2Mqtt
 		/// <param name="sslProtocol">SSL/TLS protocol version</param>
 		public CENetworkChannel( string remoteHostName, int remotePort, bool secure, MqttSslProtocols sslProtocol )
 		{
-			this.m_socketHandle = -1; // invald socket handle
+			this.m_socketHandle = INVALID_SOCKET; // invald socket handle
 			this.m_remoteHostName = remoteHostName;
 			this.m_remotePort = remotePort;
 			this.m_sslProtocol = sslProtocol;
@@ -164,7 +166,7 @@ namespace uPLibrary.Networking.M2Mqtt
 		/// <returns>Number of bytes received</returns>
 		public int Receive( byte[] buffer )
 		{
-			return Receive( m_socketHandle, buffer, buffer.Length, 0 );
+			return this.Receive( buffer, 0 );
 		}
 
 		/// <summary>
@@ -175,7 +177,17 @@ namespace uPLibrary.Networking.M2Mqtt
 		/// <returns>Number of bytes received</returns>
 		public int Receive( byte[] buffer, int timeout )
 		{
-			return Receive( m_socketHandle, buffer, buffer.Length, timeout );
+			if( buffer.Length == 0 ) {
+				return 0;
+			}
+
+			int nReceiveDataCount = Receive( m_socketHandle, buffer, buffer.Length, timeout );
+
+			if( nReceiveDataCount < 0 ) {
+				throw new Exception( "Receive Error" );
+			}
+
+			return nReceiveDataCount;
 		}
 
 		/// <summary>

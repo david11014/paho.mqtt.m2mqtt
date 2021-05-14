@@ -210,11 +210,10 @@ BOOL CSSLSocket::InitSSL( void )
 	CSSLAdapter::OPENSSL_init_ssl( 0, NULL );
 
 	// Create SSL_CTX
-	if( ( m_pSSLContext = CreateSSLContext() ) == NULL ) {
-		printf( "Create ssl context fail\n" );
+	m_pSSLContext = CreateSSLContext();
+	if( m_pSSLContext == NULL ) {
 		return FALSE;
 	}
-	printf( "Create ssl context success\n" );
 
 	// Start to build ssl connection
 	m_pSSL = CSSLAdapter::SSL_new( m_pSSLContext );
