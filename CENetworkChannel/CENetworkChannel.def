@@ -4,7 +4,7 @@ LIBRARY      CENetWorkChannel.DLL
 
 EXPORTS
 	InitNetworkChannel
-	DataAvailable
+	DeinitNetworkChannel
 	Receive
 	Send
 	Close

@@ -49,18 +49,20 @@ INT CSSLSocketMgr::InitNetworkChannel( CHAR szRemoteHostIP[], INT nRemoteHostPor
 	return RegistrySocket( pSSLSocket );;
 }
 
-BOOL CSSLSocketMgr::DataAvailable( INT nChHandle )
+void CSSLSocketMgr::DeinitNetworkChannel( INT nChHandle )
 /// <summary>
-/// Data available on channel
+/// Deinit the channel and release the resource
 /// </summary>
-/// <param name="nChHandle">Socket handle</param>
+/// <param name="nChHandle">channel handle</param>
 {
 	// check handle
 	if( nChHandle < 0 || ( UINT )nChHandle >= m_SSLSocketList.size() || m_SSLSocketList[ nChHandle ] == NULL ) {
-		return FALSE;
+		return;
 	}
 
-	return m_SSLSocketList[ nChHandle ]->DataAvailable();
+	// free the socket
+	delete m_SSLSocketList[ nChHandle ];
+	m_SSLSocketList[ nChHandle ] = NULL;
 }
 
 INT CSSLSocketMgr::Receive( INT nChHandle, BYTE buffer[], INT Length, INT timeout )

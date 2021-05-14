@@ -29,17 +29,17 @@ INT CENETAPI InitNetworkChannel( CHAR szRemoteHostIP[], INT nRemoteHostPort, BOO
 	return g_pCSSSocket->InitNetworkChannel( szRemoteHostIP, nRemoteHostPort, secure, nProtocols );
 }
 
-BOOL CENETAPI DataAvailable( INT nChHandle )
+void CENETAPI DeinitNetworkChannel( INT nChHandle )
 /// <summary>
-/// Data available on channel
+/// Deinit the channel and release the resource
 /// </summary>
-/// <param name="nChHandle">Socket handle</param>
+/// <param name="nChHandle">channel handle</param>
 {
-	if( g_pCSSSocket == NULL || nChHandle <= 0 ) {
-		return FALSE;
+	if( g_pCSSSocket == NULL ) {
+		return;
 	}
 
-	return g_pCSSSocket->DataAvailable( nChHandle );
+	g_pCSSSocket->DeinitNetworkChannel( nChHandle );
 }
 
 INT CENETAPI Receive( INT nChHandle, BYTE buffer[], INT Length, INT timeout )

@@ -30,12 +30,6 @@ CSSLSocket::~CSSLSocket( void )
 	DeinitSocket();
 }
 
-BOOL CSSLSocket::DataAvailable( void )
-// Data available on channel
-{
-	return m_bConnectSuccess;
-}
-
 INT CSSLSocket::Receive( BYTE buffer[], INT nLength, INT timeout )
 // Receive data from the network channel with a specified timeout
 // Note: NOT support timeout now

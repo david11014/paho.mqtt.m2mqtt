@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Text;
 using System.Net;
 using System.Runtime.InteropServices;
@@ -20,12 +20,11 @@ namespace uPLibrary.Networking.M2Mqtt
 		[DllImport( "CENetworkChannel.dll" )]
 		public static extern int InitNetworkChannel( byte[] szRemoteHostIP, int nRemoteHostPort, bool bSecure, int nProtocols );
 
-		/*/// <summary>
-		/// Data available on channel
+		/// <summary>
+		/// Deinit the channel and release the resource
 		/// </summary>
-		/// <param name="nChHandle">Socket handle</param>
-		[DllImport( "CENetworkChannel.dll" )]
-		public static extern bool DataAvailable( int nChHandle );*/
+		/// <param name="nChHandle">channel handle</param>
+		public static extern void DeinitNetworkChannel( int nChHandle );
 
 		/// <summary>
 		/// Receive data from the network channel with a specified timeout
@@ -135,7 +134,17 @@ namespace uPLibrary.Networking.M2Mqtt
 				throw new Exception( "Init network channel fail" );
 			}
 		}
-	
+
+		/// <summary>
+		/// Distructor
+		/// </summary>
+		~CENetworkChannel()
+		{
+			DeinitNetworkChannel( this.m_socketHandle );
+
+			this.m_socketHandle = INVALID_SOCKET;
+		}
+
 		
 		/// <summary>
 		/// Data available on channel

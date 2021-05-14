@@ -27,10 +27,10 @@ public:
 	INT InitNetworkChannel( CHAR szRemoteHostIP[], INT nRemoteHostPort, BOOL bSecure, INT nProtocols );
 
 	/// <summary>
-	/// Data available on channel
+	/// Deinit the channel and release the resource
 	/// </summary>
-	/// <param name="nChHandle">Socket handle</param>
-	BOOL DataAvailable( INT nChHandle );
+	/// <param name="nChHandle">channel handle</param>
+	void DeinitNetworkChannel( INT nChHandle );
 
 	/// <summary>
 	/// Receive data from the network channel with a specified timeout

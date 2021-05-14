@@ -25,9 +25,6 @@ public:
 	// distructor
 	~CSSLSocket( void );
 
-	// Data available on channel
-	BOOL DataAvailable( void );
-
 	// Receive data from the network channel with a specified timeout
 	// Note: NOT support timeout now, it is equal non time out version
 	INT Receive( BYTE buffer[], INT nLength, INT timeout );
