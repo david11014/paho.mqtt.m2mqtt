@@ -4,7 +4,9 @@
 #include "OpenSSLAdapter.h"
 #include "SSLSocket.h"
 
-// #define SSLSOCKET_DEBUG
+// #define SSLSOCKET_DEBUG_SSL
+// #define SSLSOCKET_DEBUG_RECEIVE
+// #define SSLSOCKET_DEBUG_SEND
 
 // =============== //
 // public function //
@@ -89,7 +91,7 @@ INT CSSLSocket::Receive( BYTE buffer[], INT nLength, INT timeout )
 		}
 		// receive fail
 		else if( nReadCount < 0 ) {
-#ifdef SSLSOCKET_DEBUG // for SSL connect debug
+#ifdef SSLSOCKET_DEBUG_RECEIVE // for receive debug
 			printf( "SSL read fail\n" );
 			printf( "Socket Error code: %d\n", WSAGetLastError() );
 			printf( "Socket %d\n", m_Socket );
@@ -112,6 +114,19 @@ INT CSSLSocket::Receive( BYTE buffer[], INT nLength, INT timeout )
 
 	// copy data to output buffer
 	ReadDataFromQueue( buffer + ( nLength - nRemainDataCount ), nRemainDataCount );
+
+#ifdef SSLSOCKET_DEBUG_RECEIVE // for receive debug
+	printf( "Receive data %d, queue remain %d data\n", nLength, m_nQueueLen );
+	printf( "Receive buffer: " );
+	for( int i = 0; i < nLength ; i++ ) {
+		printf( "%d, ", buffer[ i ] );
+	}
+	printf( "\nQueue: " );
+	for( int i = 0; i < m_nQueueLen ; i++ ) {
+		printf( "%d, ", m_QueueData[ i ] );
+	}
+	printf( "\n" );
+#endif
 
 	Unlock();
 	return nLength;
@@ -136,7 +151,7 @@ INT CSSLSocket::Send( BYTE buffer[], INT nLength )
 		nSendCount = ::send( m_Socket, ( CHAR * )( void * )buffer, nLength, 0 );
 	}
 
-#ifdef SSLSOCKET_DEBUG // for SSL connect debug
+#ifdef SSLSOCKET_DEBUG_SEND // for send debug
 	printf( "------\n" );
 	printf( "Send %d data\n", nLength );
 	printf( "Result Send %d data\n", nSendCount );
@@ -226,7 +241,7 @@ BOOL CSSLSocket::InitSSL( void )
 	INT nConnectResult = CSSLAdapter::SSL_connect( m_pSSL );
 	if( nConnectResult <= 0 ) {
 
-#ifdef SSLSOCKET_DEBUG // for SSL connect debug
+#ifdef SSLSOCKET_DEBUG_SSL // for SSL connect debug
 		printf( "SSL connect fail\n" );
 		printf( "Socket Error code: %d\n", WSAGetLastError() );
 		printf( "Socket %d\n", m_Socket );
@@ -243,7 +258,7 @@ BOOL CSSLSocket::InitSSL( void )
 		return FALSE;
 	}
 
-#ifdef SSLSOCKET_DEBUG // for SSL connect debug
+#ifdef SSLSOCKET_DEBUG_SSL // for SSL connect debug
 	printf( "SSL connect success, using %s\n", CSSLAdapter::SSL_get_version( m_pSSL ) );
 #endif
 
