@@ -36,23 +36,31 @@ public:
 	void Close( void );
 
 	// Connect to remote server
-	void Connect( void );
+	BOOL Connect( void );
 
 private:
+	// the flag of socket is connected
+	BOOL m_bConnected;
+
+	// remote server IP address
 	CHAR m_szRemoteHostIP[ MAX_IP_STR_LEN ];
 
+	// remote server port number
 	INT m_nRemoteHostPort;
 
+	// SSL protocols method
 	SSLProtocols m_Protocols;
 
+	// flag to switch using SSL or not
 	BOOL m_bSecure;
 
-	BOOL m_bConnectSuccess;
-
+	// socket handle
 	SOCKET m_Socket;
 
+	// SSL handle
 	SSL *m_pSSL;
 
+	// SSL context
 	SSL_CTX *m_pSSLContext;
 
 private:

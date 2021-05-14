@@ -62,6 +62,7 @@ public:
 	/// </summary>
 	/// <param name="nChHandle">Channel handle</param>
 	/// <returns>connect success will return TRUE</returns>
+	BOOL Connect( INT nChHandle );
 
 private:
 	// flag of winsock is init or not

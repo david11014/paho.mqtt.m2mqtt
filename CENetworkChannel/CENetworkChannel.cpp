@@ -87,16 +87,15 @@ void CENETAPI Close( INT nChHandle )
 	g_pCSSSocket->Close( nChHandle );
 }
 
-void CENETAPI Connect( INT nChHandle )
+BOOL CENETAPI Connect( INT nChHandle )
 /// <summary>
 /// Connect to remote server
 /// </summary>
 /// <param name="nChHandle">Channel handle</param>
 {
 	if( g_pCSSSocket == NULL ) {
-		return;
+		return FALSE;
 	}
 
-	g_pCSSSocket->Connect( nChHandle );
+	return g_pCSSSocket->Connect( nChHandle );
 }
-

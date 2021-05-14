@@ -114,7 +114,7 @@ void CSSLSocketMgr::Close( INT nChHandle )
 	m_SSLSocketList[ nChHandle ]->Close();
 }
 
-void CSSLSocketMgr::Connect( INT nChHandle )
+BOOL CSSLSocketMgr::Connect( INT nChHandle )
 /// <summary>
 /// Connect to remote server
 /// </summary>
@@ -122,10 +122,10 @@ void CSSLSocketMgr::Connect( INT nChHandle )
 {
 	// check handle
 	if( nChHandle < 0 || ( UINT )nChHandle >= m_SSLSocketList.size() || m_SSLSocketList[ nChHandle ] == NULL ) {
-		return;
+		return FALSE;
 	}
 
-	m_SSLSocketList[ nChHandle ]->Connect();
+	return m_SSLSocketList[ nChHandle ]->Connect();
 }
 
 // ================ //

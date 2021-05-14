@@ -59,7 +59,7 @@ namespace uPLibrary.Networking.M2Mqtt
 		/// </summary>
 		/// <param name="nChHandle">Channel handle</param>
 		[DllImport( "CENetworkChannel.dll" )]
-		public static extern void Connect( int nChHandle );
+		public static extern bool Connect( int nChHandle );
 
 		#endregion // Import DLL
 
@@ -201,7 +201,9 @@ namespace uPLibrary.Networking.M2Mqtt
 		/// </summary>
 		public void Connect()
 		{
-			Connect( m_socketHandle );
+			if( Connect( m_socketHandle ) == false ) {
+				throw new Exception( "Connect Fail" );
+			}
 		}
 
 		/// <summary>

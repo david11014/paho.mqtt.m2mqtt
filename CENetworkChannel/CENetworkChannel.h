@@ -55,6 +55,7 @@ void CENETAPI Close( INT nChHandle );
 /// </summary>
 /// <param name="nChHandle">Channel handle</param>
 /// <returns>connect success will return TRUE</returns>
+BOOL CENETAPI Connect( INT nChHandle );
 
 }	 // extern "C"
 

@@ -62,6 +62,10 @@ void CSSLSocket::Close( void )
 void CSSLSocket::Connect( void )
 // Connect to remote server
 {
+	if( m_bConnected == TRUE ) {
+		return TRUE;
+	}
+
 	printf( "Start create client\n" );
 	printf( "Connect to %s:%d\n", m_szRemoteHostIP, m_nRemoteHostPort );
 
@@ -69,20 +73,21 @@ void CSSLSocket::Connect( void )
 	m_Socket = CreateSocket( m_szRemoteHostIP, m_nRemoteHostPort );
 
 	// check socket result
-	if( m_Socket < 0 ) {
-		printf( "Create socket fail\n" );
-		return;
+	if( m_Socket == INVALID_SOCKET ) {
+		return FALSE;
 	}
 
 	printf( "Create socket success\n" );
 
 	// no SSL request, it will not init SSL
 	if( m_bSecure == TRUE ) {
-		m_bConnectSuccess = InitSSL();
+		m_bConnected = InitSSL();
+		return m_bConnected;
 	}
 	else {
-		m_bConnectSuccess = TRUE;
+		m_bConnected = TRUE;
 	}
+	return m_bConnected;
 }
 
 // ================ //
@@ -104,8 +109,9 @@ BOOL CSSLSocket::InitSSL( void )
 
 	// Start to build ssl connection
 	m_pSSL = CSSLAdapter::SSL_new( m_pSSLContext );
-
-	printf( "SSL version %s\n", CSSLAdapter::SSL_get_version( m_pSSL ) );
+	if( m_pSSL == NULL ) {
+		return FALSE;
+	}
 
 	CSSLAdapter::SSL_set_fd( m_pSSL, m_Socket );
 
