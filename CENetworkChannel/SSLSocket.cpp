@@ -154,6 +154,10 @@ INT CSSLSocket::Send( BYTE buffer[], INT nLength )
 #ifdef SSLSOCKET_DEBUG_SEND // for send debug
 	printf( "------\n" );
 	printf( "Send %d data\n", nLength );
+	for( int i = 0; i < nLength ; i++ ) {
+		printf( "%d, ", buffer[ i ] );
+	}
+	printf( "\n" );
 	printf( "Result Send %d data\n", nSendCount );
 
 	if( nSendCount < 0 ) {
