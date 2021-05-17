@@ -15,8 +15,6 @@
 CSSLSocket::CSSLSocket( CHAR szRemoteHostIP[], INT nRemoteHostPort, BOOL bSecure, SSLProtocols Protocols )
 // constructor
 {
-	InitializeCriticalSection( &m_cs );
-
 	// IP address
 	memset( m_szRemoteHostIP, '\0', MAX_IP_STR_LEN );
 	strcpy_s( m_szRemoteHostIP, MAX_IP_STR_LEN, szRemoteHostIP );
@@ -39,8 +37,6 @@ CSSLSocket::~CSSLSocket( void )
 // distructor
 {
 	DeinitSocket();
-
-	DeleteCriticalSection( &m_cs );
 }
 
 INT CSSLSocket::Receive( BYTE buffer[], INT nLength, INT timeout )
@@ -50,10 +46,7 @@ INT CSSLSocket::Receive( BYTE buffer[], INT nLength, INT timeout )
 	// clear buffer
 	memset( buffer, 0, nLength * sizeof( BYTE ) );
 
-	Lock();
-
 	if( m_bConnected == FALSE ) {
-		Unlock();
 		return 0;
 	}
 
@@ -62,7 +55,6 @@ INT CSSLSocket::Receive( BYTE buffer[], INT nLength, INT timeout )
 
 	// has enouth data
 	if( nRemainDataCount == 0 ) {
-		Unlock();
 		return nLength;
 	}
 
@@ -105,7 +97,6 @@ INT CSSLSocket::Receive( BYTE buffer[], INT nLength, INT timeout )
 				err = CSSLAdapter::ERR_get_error();
 			}
 #endif
-			Unlock();
 			return -1;
 		}
 	}
@@ -128,19 +119,15 @@ INT CSSLSocket::Receive( BYTE buffer[], INT nLength, INT timeout )
 	printf( "\n" );
 #endif
 
-	Unlock();
 	return nLength;
 }
 
 INT CSSLSocket::Send( BYTE buffer[], INT nLength )
 // Send data on the network channel to the broker
 {
-	Lock();
-
 	INT nSendCount = 0;
 
 	if( m_bConnected == FALSE ) {
-		Unlock();
 		return 0;
 	}
 
@@ -175,8 +162,6 @@ INT CSSLSocket::Send( BYTE buffer[], INT nLength )
 		}
 	}
 #endif
-
-	Unlock();
 	return nSendCount;
 }
 
@@ -189,9 +174,7 @@ void CSSLSocket::Close( void )
 BOOL CSSLSocket::Connect( void )
 // Connect to remote server
 {
-	Lock();
 	if( m_bConnected == TRUE ) {
-		Unlock();
 		return TRUE;
 	}
 
@@ -200,21 +183,18 @@ BOOL CSSLSocket::Connect( void )
 
 	// check socket result
 	if( m_Socket == INVALID_SOCKET ) {
-		Unlock();
 		return FALSE;
 	}
 
 	// no SSL request, it will not init SSL
 	if( m_bSecure == TRUE ) {
 		m_bConnected = InitSSL();
-		Unlock();
 		return m_bConnected;
 	}
 	else {
 		m_bConnected = TRUE;
 	}
 
-	Unlock();
 	return m_bConnected;
 }
 
@@ -273,10 +253,7 @@ BOOL CSSLSocket::InitSSL( void )
 void CSSLSocket::DeinitSocket( void )
 // free the socket resouse
 {
-	Lock();
-
 	if( m_bConnected == FALSE ) {
-		Unlock();
 		return;
 	}
 
@@ -308,8 +285,6 @@ void CSSLSocket::DeinitSocket( void )
 	}
 
 	m_bConnected = FALSE;
-
-	Unlock();
 }
 
 SOCKET CSSLSocket::CreateSocket( CHAR szRemoteHostIP[], INT port )
@@ -348,18 +323,6 @@ SSL_CTX *CSSLSocket::CreateSSLContext()
 	ctx = CSSLAdapter::SSL_CTX_new( method );
 
 	return ctx;
-}
-
-void CSSLSocket::Lock( void )
-// lock critical section
-{
-	EnterCriticalSection( &m_cs );
-}
-
-void CSSLSocket::Unlock( void )
-// unlock critical section
-{
-	LeaveCriticalSection( &m_cs );
 }
 
 int CSSLSocket::ReadDataFromQueue( BYTE buffer[], INT nLength )

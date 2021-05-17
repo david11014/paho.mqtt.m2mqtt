@@ -63,9 +63,6 @@ private:
 	// SSL context
 	SSL_CTX *m_pSSLContext;
 
-	// critical section
-	CRITICAL_SECTION m_cs;
-
 	BYTE m_ReceiveBuffer[ RECV_SIZE ];
 
 	BYTE m_QueueData[ RECV_SIZE ];
@@ -84,12 +81,6 @@ private:
 
 	// create ssl context
 	SSL_CTX *CreateSSLContext();
-
-	// lock critical section
-	void Lock( void );
-
-	// unlock critical section
-	void Unlock( void );
 
 	// read data from queue, return read data count
 	int ReadDataFromQueue( BYTE buffer[], INT nLength );
