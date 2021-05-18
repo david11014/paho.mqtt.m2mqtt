@@ -32,8 +32,8 @@ CSSLSocketMgr::~CSSLSocketMgr( void )
 			Close( i );
 
 			// free the socket
-			delete m_SSLSocketList[ nChHandle ];
-			m_SSLSocketList[ nChHandle ] = NULL;
+			delete m_SSLSocketList[ i ];
+			m_SSLSocketList[ i ] = NULL;
 		}
 	}
 }
