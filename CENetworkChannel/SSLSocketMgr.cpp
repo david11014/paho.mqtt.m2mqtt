@@ -30,6 +30,10 @@ CSSLSocketMgr::~CSSLSocketMgr( void )
 	for( UINT i = 0; i < m_SSLSocketList.size(); i++ ) {
 		if( m_SSLSocketList[ i ] != NULL ) {
 			Close( i );
+
+			// free the socket
+			delete m_SSLSocketList[ nChHandle ];
+			m_SSLSocketList[ nChHandle ] = NULL;
 		}
 	}
 }
@@ -59,6 +63,9 @@ void CSSLSocketMgr::DeinitNetworkChannel( INT nChHandle )
 	if( nChHandle < 0 || ( UINT )nChHandle >= m_SSLSocketList.size() || m_SSLSocketList[ nChHandle ] == NULL ) {
 		return;
 	}
+
+	// make sure socket is closed
+	m_SSLSocketList[ nChHandle ]->Close();
 
 	// free the socket
 	delete m_SSLSocketList[ nChHandle ];

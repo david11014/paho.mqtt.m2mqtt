@@ -24,6 +24,7 @@ namespace uPLibrary.Networking.M2Mqtt
 		/// Deinit the channel and release the resource
 		/// </summary>
 		/// <param name="nChHandle">channel handle</param>
+		[DllImport( "CENetworkChannel.dll" )]
 		public static extern void DeinitNetworkChannel( int nChHandle );
 
 		/// <summary>
