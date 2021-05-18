@@ -5,7 +5,7 @@
 #pragma once
 #endif	  // _MSC_VER > 1000
 
-#define RECV_SIZE	   256
+#define RECV_SIZE	   ( 16384 ) // 16KB, align with OpenSSL maximum record size 
 #define MAX_IP_STR_LEN ( 16 )	 // max ip addres length( xxx.xxx.xxx.xxx\0 )
 
 enum SSLProtocols : INT {
