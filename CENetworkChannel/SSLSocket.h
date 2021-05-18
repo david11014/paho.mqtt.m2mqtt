@@ -39,6 +39,21 @@ public:
 	BOOL Connect( void );
 
 private:
+	// receive state
+	enum ERecvState
+	{
+		ERS_Idle,
+		ERS_Receiving,
+	};
+
+	// send state
+	enum ESendState
+	{
+		ESS_Idle,
+		ESS_Sending,
+	};
+
+private:
 	// the flag of socket is connected
 	BOOL m_bConnected;
 
@@ -68,6 +83,21 @@ private:
 	BYTE m_QueueData[ RECV_SIZE ];
 
 	INT m_nQueueLen;
+
+	// strop running receive and send request
+	BOOL m_bStopRequest;
+
+	// receive state
+	ERecvState m_RecvState;
+
+	// send state
+	ESendState m_SendState;
+
+	// receive end event handle
+	HANDLE m_RecvEndEvent;
+
+	// send end event handle
+	HANDLE m_SendEndEvent;
 
 private:
 	// init SSL, if init fail return FALSE

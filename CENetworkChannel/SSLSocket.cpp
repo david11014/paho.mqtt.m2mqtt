@@ -31,6 +31,27 @@ CSSLSocket::CSSLSocket( CHAR szRemoteHostIP[], INT nRemoteHostPort, BOOL bSecure
 	memset( m_ReceiveBuffer, 0, sizeof( BYTE ) * RECV_SIZE );
 	memset( m_QueueData, 0, sizeof( BYTE ) * RECV_SIZE );
 	m_nQueueLen = 0;
+
+	// stop running receive and send request
+	m_bStopRequest = FALSE;
+
+	// receive state
+	m_RecvState = ERS_Idle;
+
+	// send state
+	m_SendState = ESS_Idle;
+
+	m_RecvEndEvent = CreateEvent( NULL,		// attribute
+								  FALSE,	// is manual reset
+								  FALSE,	// initial state
+								  NULL		// event name
+	);
+
+	m_SendEndEvent = CreateEvent( NULL,		// attribute
+								  FALSE,	// is manual reset
+								  FALSE,	// initial state
+								  NULL		// event name
+	);
 }
 
 CSSLSocket::~CSSLSocket( void )
@@ -46,7 +67,7 @@ INT CSSLSocket::Receive( BYTE buffer[], INT nLength, INT timeout )
 	// clear buffer
 	memset( buffer, 0, nLength * sizeof( BYTE ) );
 
-	if( m_bConnected == FALSE ) {
+	if( m_bConnected == FALSE || m_bStopRequest == TRUE ) {
 		return 0;
 	}
 
@@ -62,12 +83,20 @@ INT CSSLSocket::Receive( BYTE buffer[], INT nLength, INT timeout )
 	int nTotalRead = 0, nReadCount = 0;
 	while( TRUE )
 	{
+		m_RecvState = ERS_Receiving;
 		// receive data
 		if( m_bSecure == TRUE ) {
 			nReadCount = CSSLAdapter::SSL_read( m_pSSL, ( m_ReceiveBuffer + nTotalRead ), RECV_SIZE - nTotalRead + 1 );
 		}
 		else {
 			nReadCount = ::recv( m_Socket, ( CHAR * )( void * )( m_ReceiveBuffer + nTotalRead ), RECV_SIZE - nTotalRead + 1, 0 );
+		}
+		m_RecvState = ERS_Idle;
+
+		// notice receive function sending is end, and force terminate receive process
+		if( m_bStopRequest == TRUE ) {
+			SetEvent( m_RecvEndEvent );
+			return 0;
 		}
 
 		// add receive data count
@@ -127,15 +156,23 @@ INT CSSLSocket::Send( BYTE buffer[], INT nLength )
 {
 	INT nSendCount = 0;
 
-	if( m_bConnected == FALSE ) {
+	if( m_bConnected == FALSE || m_bStopRequest == TRUE ) {
 		return 0;
 	}
 
+	m_SendState = ESS_Sending;
 	if( m_bSecure == TRUE ) {
 		nSendCount = CSSLAdapter::SSL_write( m_pSSL, buffer, nLength );
 	}
 	else {
 		nSendCount = ::send( m_Socket, ( CHAR * )( void * )buffer, nLength, 0 );
+	}
+
+	m_SendState = ESS_Idle;
+
+	// notice disconnect function sending is end
+	if( m_bStopRequest == TRUE ) {
+		SetEvent( m_SendEndEvent );
 	}
 
 #ifdef SSLSOCKET_DEBUG_SEND // for send debug
@@ -257,6 +294,27 @@ void CSSLSocket::DeinitSocket( void )
 		return;
 	}
 
+	// request stop all operation
+	m_bStopRequest = TRUE;
+
+	// deinit socket first, let receive and send function auto stop and return
+	if( m_Socket != INVALID_SOCKET ) {
+		// close socket
+		closesocket( m_Socket );
+
+		m_Socket = INVALID_SOCKET;
+	}
+
+	// wait receive is end process
+	if( m_RecvState == ERS_Receiving ) {
+		WaitForSingleObject( m_RecvEndEvent, INFINITE );
+	}
+
+	// wait send is end process
+	if( m_SendState == ESS_Sending ) {
+		WaitForSingleObject( m_SendEndEvent, INFINITE );
+	}
+
 	// clean SSL setting
 	if( m_bSecure == TRUE ) {
 		if( m_pSSL != NULL ) {
@@ -277,13 +335,12 @@ void CSSLSocket::DeinitSocket( void )
 		}
 	}
 
-	if( m_Socket != INVALID_SOCKET ) {
-		// close socket
-		closesocket( m_Socket );
+	// clear buffer
+	memset( m_ReceiveBuffer, 0, sizeof( BYTE ) * RECV_SIZE );
+	memset( m_QueueData, 0, sizeof( BYTE ) * RECV_SIZE );
+	m_nQueueLen = 0;
 
-		m_Socket = INVALID_SOCKET;
-	}
-
+	m_bStopRequest = FALSE;
 	m_bConnected = FALSE;
 }
 
