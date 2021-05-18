@@ -99,3 +99,17 @@ BOOL CENETAPI Connect( INT nChHandle )
 
 	return g_pCSSSocket->Connect( nChHandle );
 }
+
+void CENETAPI SetThreadProcessor( UINT nProcessorNumber )
+/// <summary>
+/// Set current thread processor number
+/// </summary>
+/// <param name="nProcessorNumber">processer number, if bigger then actual process count, then set 1</param>
+{
+	// check process number
+	if( nProcessorNumber > CeGetTotalProcessors() ) {
+		nProcessorNumber = 1;
+	}
+
+	CeSetThreadAffinity( GetCurrentThread(), nProcessorNumber );
+}

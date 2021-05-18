@@ -9,3 +9,4 @@ EXPORTS
 	Send
 	Close
 	Connect
+	SetThreadProcessor

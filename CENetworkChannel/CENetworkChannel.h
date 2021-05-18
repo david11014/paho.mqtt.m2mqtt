@@ -57,6 +57,12 @@ void CENETAPI Close( INT nChHandle );
 /// <returns>connect success will return TRUE</returns>
 BOOL CENETAPI Connect( INT nChHandle );
 
+/// <summary>
+/// Set current thread processor number
+/// </summary>
+/// <param name="nProcessorNumber">processer number, if bigger then actual process count, then set 1</param>
+void CENETAPI SetThreadProcessor( UINT nProcessorNumber );
+
 }	 // extern "C"
 
 #endif	  // !defined(_CENETWORKCHANNEL_H____INCLUDED_)

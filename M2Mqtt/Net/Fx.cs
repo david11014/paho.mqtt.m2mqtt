@@ -15,6 +15,7 @@ Contributors:
 */
 
 using System.Threading;
+using System.Runtime.InteropServices;
 
 namespace uPLibrary.Networking.M2Mqtt
 {
@@ -23,6 +24,9 @@ namespace uPLibrary.Networking.M2Mqtt
     /// </summary>
     public class Fx
     {
+        [DllImport( "CENetworkChannel.dll" )]
+        public static extern void SetThreadProcessor( uint nProcessorNumber );
+
         public static void StartThread(ThreadStart threadStart)
         {
             new Thread(threadStart).Start();

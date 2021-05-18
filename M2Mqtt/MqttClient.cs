@@ -154,6 +154,12 @@ namespace uPLibrary.Networking.M2Mqtt
         public event MqttMsgSubscribedEventHandler MqttMsgSubscribed;
         // event for unsubscribed topic
         public event MqttMsgUnsubscribedEventHandler MqttMsgUnsubscribed;
+
+        // thread process number
+        private uint _ProcessorNumber = 1;
+
+        private bool bThreadStart = false;
+
 #if BROKER
         // event for SUBSCRIBE message received
         public event MqttMsgSubscribeEventHandler MqttMsgSubscribeReceived;
@@ -228,6 +234,25 @@ namespace uPLibrary.Networking.M2Mqtt
         /// MQTT protocol version
         /// </summary>
         public MqttProtocolVersion ProtocolVersion { get; set; }
+
+        /// <summary>
+        /// thread process number
+        /// </summary>
+        public uint ProcessorNumber
+        {
+            get
+            {
+                return _ProcessorNumber;
+            }
+            set {
+                // only set process number before any thread start
+                if( this.bThreadStart == true ) {
+                    return;
+                }
+
+                _ProcessorNumber = value;
+            }
+        }
 
 #if BROKER
         /// <summary>
@@ -1352,6 +1377,10 @@ namespace uPLibrary.Networking.M2Mqtt
         /// </summary>
         private void ReceiveThread()
         {
+            // set thread process number
+            Fx.SetThreadProcessor( this.ProcessorNumber );
+            bThreadStart = true;
+
             int readBytes = 0;
             byte[] fixedHeaderFirstByte = new byte[1];
             byte msgType;
@@ -1644,6 +1673,10 @@ namespace uPLibrary.Networking.M2Mqtt
         /// </summary>
         private void KeepAliveThread()
         {
+            // set thread process number
+            Fx.SetThreadProcessor( this.ProcessorNumber );
+            bThreadStart = true;
+
             int delta = 0;
             int wait = this.keepAlivePeriod;
             
@@ -1693,6 +1726,10 @@ namespace uPLibrary.Networking.M2Mqtt
         /// </summary>
         private void DispatchEventThread()
         {
+            // set thread process number
+            Fx.SetThreadProcessor( this.ProcessorNumber );
+            bThreadStart = true;
+
             while (this.isRunning)
             {
 #if BROKER
@@ -1860,6 +1897,10 @@ namespace uPLibrary.Networking.M2Mqtt
         /// </summary>
         private void ProcessInflightThread()
         {
+            // set thread process number
+            Fx.SetThreadProcessor( this.ProcessorNumber );
+            bThreadStart = true;
+
             MqttMsgContext msgContext = null;
             MqttMsgBase msgInflight = null;
             MqttMsgBase msgReceived = null;
