@@ -78,10 +78,13 @@ private:
 	// SSL context
 	SSL_CTX *m_pSSLContext;
 
+	// receive buffer
 	BYTE m_ReceiveBuffer[ RECV_SIZE ];
 
+	// receive data queue
 	BYTE m_QueueData[ RECV_SIZE ];
 
+	// queue len
 	INT m_nQueueLen;
 
 	// strop running receive and send request

@@ -28,6 +28,7 @@ CSSLSocket::CSSLSocket( CHAR szRemoteHostIP[], INT nRemoteHostPort, BOOL bSecure
 	m_pSSL			  = NULL;
 	m_pSSLContext	  = NULL;
 
+	// init buffer and queue
 	memset( m_ReceiveBuffer, 0, sizeof( BYTE ) * RECV_SIZE );
 	memset( m_QueueData, 0, sizeof( BYTE ) * RECV_SIZE );
 	m_nQueueLen = 0;
@@ -290,6 +291,7 @@ BOOL CSSLSocket::InitSSL( void )
 void CSSLSocket::DeinitSocket( void )
 // free the socket resouse
 {
+	// not connect yet
 	if( m_bConnected == FALSE ) {
 		return;
 	}
