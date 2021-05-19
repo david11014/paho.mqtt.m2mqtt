@@ -1,13 +1,14 @@
 #include "StdAfx.h"
-#include <vector>
 #include <winsock2.h>
 #include <ws2tcpip.h>
-#include "SSLSocketMgr.h"
+#include "OpenSSLAdapter.h"
+#include "SSLSocket.h"
 #include "CENetworkChannel.h"
 
-CSSLSocketMgr *g_pCSSSocket = NULL;
+// init static member data
+static BOOL g_bInitWinSocket = FALSE;
 
-INT CENETAPI InitNetworkChannel( CHAR szRemoteHostIP[], INT nRemoteHostPort, BOOL secure, INT nProtocols )
+CSSLSocket *CENETAPI InitNetworkChannel( CHAR szRemoteHostIP[], INT nRemoteHostPort, BOOL bSecure, INT nProtocols )
 /// <summary>
 /// Init the network channel
 /// </summary>
@@ -17,87 +18,90 @@ INT CENETAPI InitNetworkChannel( CHAR szRemoteHostIP[], INT nRemoteHostPort, BOO
 /// <param name="nProtocols">SSL/TLX communication protocols</param>
 /// <returns>Channel handle, handle >= 0</returns>
 {
-	if( g_pCSSSocket == NULL ) {
-		g_pCSSSocket = new CSSLSocketMgr();
-
-		// check new result
-		if( g_pCSSSocket == NULL ) {
-			return INVALID_SOCKET;
-		}
+	if( g_bInitWinSocket == FALSE ) {
+		WSADATA wsaData;
+		::WSAStartup( WINSOCK_VERSION, &wsaData );
+		g_bInitWinSocket = TRUE;
 	}
 
-	return g_pCSSSocket->InitNetworkChannel( szRemoteHostIP, nRemoteHostPort, secure, nProtocols );
+	CSSLSocket *pChHandle = new CSSLSocket( szRemoteHostIP, nRemoteHostPort, bSecure, ( SSLProtocols )nProtocols );
+
+	return pChHandle;
 }
 
-void CENETAPI DeinitNetworkChannel( INT nChHandle )
+void CENETAPI DeinitNetworkChannel( CSSLSocket *pChHandle )
 /// <summary>
 /// Deinit the channel and release the resource
 /// </summary>
-/// <param name="nChHandle">channel handle</param>
+/// <param name="pChHandle">channel handle</param>
 {
-	if( g_pCSSSocket == NULL ) {
+	if( pChHandle == NULL ) {
 		return;
 	}
 
-	g_pCSSSocket->DeinitNetworkChannel( nChHandle );
+	// make sure socket is closed
+	pChHandle->Close();
+
+	// free the socket
+	delete pChHandle;
 }
 
-INT CENETAPI Receive( INT nChHandle, BYTE buffer[], INT Length, INT timeout )
+INT CENETAPI Receive( CSSLSocket *pChHandle, BYTE buffer[], INT Length, INT timeout )
 /// <summary>
 /// Receive data from the network channel with a specified timeout
 /// </summary>
-/// <param name="nChHandle">Channel handle</param>
+/// <param name="pChHandle">Channel handle</param>
 /// <param name="buffer">Data buffer for receiving data</param>
 /// <param name="Length">Data buffer length</param>
 /// <param name="timeout">Timeout on receiving (in milliseconds) Note: note support now</param>
 /// <returns>Number of bytes received</returns>
 {
-	if( g_pCSSSocket == NULL ) {
+	if( pChHandle == NULL ) {
 		return 0;
 	}
 
-	return g_pCSSSocket->Receive( nChHandle, buffer, Length, timeout );
+	return pChHandle->Receive( buffer, Length, timeout );
 }
 
-INT CENETAPI Send( INT nChHandle, BYTE buffer[], INT Length )
+INT CENETAPI Send( CSSLSocket *pChHandle, BYTE buffer[], INT Length )
 /// <summary>
 /// Send data on the network channel to the broker
 /// </summary>
-/// <param name="nChHandle">Channel handle</param>
+/// <param name="pChHandle">Channel handle</param>
 /// <param name="buffer">Data buffer to send</param>
 /// <returns>Number of byte sent</returns>
 {
-	if( g_pCSSSocket == NULL ) {
+	if( pChHandle == NULL ) {
 		return 0;
 	}
 
-	return g_pCSSSocket->Send( nChHandle, buffer, Length );
+	return pChHandle->Send( buffer, Length );
 }
 
-void CENETAPI Close( INT nChHandle )
+void CENETAPI Close( CSSLSocket *pChHandle )
 /// <summary>
 /// Close the network channel
 /// </summary>
-/// <param name="nChHandle">Channel handle</param>
+/// <param name="pChHandle">Channel handle</param>
 {
-	if( g_pCSSSocket == NULL ) {
+	if( pChHandle == NULL ) {
 		return;
 	}
 
-	g_pCSSSocket->Close( nChHandle );
+	pChHandle->Close();
 }
 
-BOOL CENETAPI Connect( INT nChHandle )
+BOOL CENETAPI Connect( CSSLSocket *pChHandle )
 /// <summary>
 /// Connect to remote server
 /// </summary>
-/// <param name="nChHandle">Channel handle</param>
+/// <param name="pChHandle">Channel handle</param>
 {
-	if( g_pCSSSocket == NULL ) {
+	if( pChHandle == NULL ) {
 		return FALSE;
 	}
 
-	return g_pCSSSocket->Connect( nChHandle );
+	return pChHandle->Connect();
 }
 
 void CENETAPI SetThreadProcessor( UINT nProcessorNumber )

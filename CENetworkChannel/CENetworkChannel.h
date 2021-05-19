@@ -17,45 +17,45 @@ extern "C" {
 /// <param name="bSecure">use SSL/TLS or not</param>
 /// <param name="nProtocols">SSL/TLS communication protocols</param>
 /// <returns>Channel handle, handle >= 0</returns>
-INT CENETAPI InitNetworkChannel( CHAR szRemoteHostIP[], INT nRemoteHostPort, BOOL bSecure, INT nProtocols );
+CSSLSocket *CENETAPI InitNetworkChannel( CHAR szRemoteHostIP[], INT nRemoteHostPort, BOOL bSecure, INT nProtocols );
 
 /// <summary>
 /// Deinit the channel and release the resource
 /// </summary>
-/// <param name="nChHandle">channel handle</param>
-void CENETAPI DeinitNetworkChannel( INT nChHandle );
+/// <param name="pChHandle">channel handle</param>
+void CENETAPI DeinitNetworkChannel( CSSLSocket *pChHandle );
 
 /// <summary>
 /// Receive data from the network channel with a specified timeout
 /// </summary>
-/// <param name="nChHandle">Channel handle</param>
+/// <param name="pChHandle">Channel handle</param>
 /// <param name="buffer">Data buffer for receiving data</param>
 /// <param name="Length">Data buffer length</param>
 /// <param name="timeout">Timeout on receiving (in milliseconds) Note: note support now</param>
 /// <returns>Number of bytes received</returns>
-INT CENETAPI Receive( INT nChHandle, BYTE buffer[], INT Length, INT timeout = 0 );
+INT CENETAPI Receive( CSSLSocket *pChHandle, BYTE buffer[], INT Length, INT timeout = 0 );
 
 /// <summary>
 /// Send data on the network channel to the broker
 /// </summary>
-/// <param name="nChHandle">Channel handle</param>
+/// <param name="pChHandle">Channel handle</param>
 /// <param name="buffer">Data buffer to send</param>
 /// <param name="Length">Data buffer length</param>
 /// <returns>Number of byte sent</returns>
-INT CENETAPI Send( INT nChHandle, BYTE buffer[], INT Length );
+INT CENETAPI Send( CSSLSocket *pChHandle, BYTE buffer[], INT Length );
 
 /// <summary>
 /// Close the network socket
 /// </summary>
-/// <param name="nChHandle">Channel handle</param>
-void CENETAPI Close( INT nChHandle );
+/// <param name="pChHandle">Channel handle</param>
+void CENETAPI Close( CSSLSocket *pChHandle );
 
 /// <summary>
 /// Connect to remote server
 /// </summary>
-/// <param name="nChHandle">Channel handle</param>
+/// <param name="pChHandle">Channel handle</param>
 /// <returns>connect success will return TRUE</returns>
-BOOL CENETAPI Connect( INT nChHandle );
+BOOL CENETAPI Connect( CSSLSocket *pChHandle );
 
 /// <summary>
 /// Set current thread processor number

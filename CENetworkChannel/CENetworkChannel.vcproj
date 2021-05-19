@@ -136,10 +136,6 @@
 				>
 			</File>
 			<File
-				RelativePath=".\SSLSocketMgr.cpp"
-				>
-			</File>
-			<File
 				RelativePath=".\StdAfx.cpp"
 				>
 				<FileConfiguration
@@ -163,10 +159,6 @@
 			</File>
 			<File
 				RelativePath=".\SSLSocket.h"
-				>
-			</File>
-			<File
-				RelativePath=".\SSLSocketMgr.h"
 				>
 			</File>
 			<File
