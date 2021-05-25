@@ -18,49 +18,49 @@ namespace uPLibrary.Networking.M2Mqtt
 		/// <param name="nProtocols">SSL/TLS communication protocols</param>
 		/// <returns>Channel handle, handle >= 0</returns>
 		[DllImport( "CENetworkChannel.dll" )]
-		public static extern int InitNetworkChannel( byte[] szRemoteHostIP, int nRemoteHostPort, bool bSecure, int nProtocols );
+		public static extern IntPtr InitNetworkChannel( byte[] szRemoteHostIP, int nRemoteHostPort, bool bSecure, int nProtocols );
 
 		/// <summary>
 		/// Deinit the channel and release the resource
 		/// </summary>
-		/// <param name="nChHandle">channel handle</param>
+		/// <param name="pChHandle">channel handle</param>
 		[DllImport( "CENetworkChannel.dll" )]
-		public static extern void DeinitNetworkChannel( int nChHandle );
+		public static extern void DeinitNetworkChannel( IntPtr pChHandle );
 
 		/// <summary>
 		/// Receive data from the network channel with a specified timeout
 		/// </summary>
-		/// <param name="nChHandle">Channel handle</param>
+		/// <param name="pChHandle">Channel handle</param>
 		/// <param name="buffer">Data buffer for receiving data</param>
 		/// <param name="Length">Data buffer length</param>
 		/// <param name="timeout">Timeout on receiving (in milliseconds) Note: note support now</param>
 		/// <returns>Number of bytes received</returns>
 		[DllImport( "CENetworkChannel.dll" )]
-		public static extern int Receive( int nChHandle, byte[] buffer, int Length, int timeout );
+		public static extern int Receive( IntPtr pChHandle, byte[] buffer, int Length, int timeout );
 
 		/// <summary>
 		/// Send data on the network channel to the broker
 		/// </summary>
-		/// <param name="nChHandle">Channel handle</param>
+		/// <param name="pChHandle">Channel handle</param>
 		/// <param name="buffer">Data buffer to send</param>
 		/// <param name="Length">Data buffer length</param>
 		/// <returns>Number of byte sent</returns>
 		[DllImport( "CENetworkChannel.dll" )]
-		public static extern int Send( int nChHandle, byte[] buffer, int Length );
+		public static extern int Send( IntPtr pChHandle, byte[] buffer, int Length );
 
 		/// <summary>
 		/// Close the network channel
 		/// </summary>
-		/// <param name="nChHandle">Channel handle</param>
+		/// <param name="pChHandle">Channel handle</param>
 		[DllImport( "CENetworkChannel.dll" )]
-		public static extern void Close( int nChHandle );
+		public static extern void Close( IntPtr pChHandle );
 
 		/// <summary>
 		/// Connect to remote server
 		/// </summary>
-		/// <param name="nChHandle">Channel handle</param>
+		/// <param name="pChHandle">Channel handle</param>
 		[DllImport( "CENetworkChannel.dll" )]
-		public static extern bool Connect( int nChHandle );
+		public static extern bool Connect( IntPtr pChHandle );
 
 		#endregion // Import DLL
 
@@ -72,15 +72,13 @@ namespace uPLibrary.Networking.M2Mqtt
 		private IPAddress m_remoteIpAddress;
 
 		// socket handle
-		private int m_socketHandle;
+		private IntPtr m_socketHandle;
 
 		// using SSL
 		private bool m_secure;
 
 		// SSL/TLS protocol version
 		private MqttSslProtocols m_sslProtocol;
-
-		private const int INVALID_SOCKET = -1;
 
 		#endregion // private member data
 
@@ -97,7 +95,7 @@ namespace uPLibrary.Networking.M2Mqtt
 		/// <param name="sslProtocol">SSL/TLS protocol version</param>
 		public CENetworkChannel( string remoteHostName, int remotePort, bool secure, MqttSslProtocols sslProtocol )
 		{
-			this.m_socketHandle = INVALID_SOCKET; // invald socket handle
+			this.m_socketHandle = IntPtr.Zero; // invald socket handle
 			this.m_remoteHostName = remoteHostName;
 			this.m_remotePort = remotePort;
 			this.m_sslProtocol = sslProtocol;
@@ -133,7 +131,7 @@ namespace uPLibrary.Networking.M2Mqtt
 			byte[] IPData = Encoding.ASCII.GetBytes( m_remoteIpAddress.ToString() );
 			this.m_socketHandle = InitNetworkChannel( IPData, this.m_remotePort, this.m_secure, (int)this.m_sslProtocol );
 
-			if( m_socketHandle < 0 ) {
+			if( m_socketHandle == IntPtr.Zero ) {
 				throw new Exception( "Init network channel fail" );
 			}
 		}
@@ -145,7 +143,7 @@ namespace uPLibrary.Networking.M2Mqtt
 		{
 			DeinitNetworkChannel( this.m_socketHandle );
 
-			this.m_socketHandle = INVALID_SOCKET;
+			this.m_socketHandle = IntPtr.Zero;
 		}
 
 		
