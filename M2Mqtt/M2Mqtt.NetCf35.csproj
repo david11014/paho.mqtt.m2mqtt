@@ -24,7 +24,7 @@
     <DebugType>full</DebugType>
     <Optimize>false</Optimize>
     <OutputPath>..\bin\Debug\M2Mqtt.NetCf35\</OutputPath>
-    <DefineConstants>TRACE;DEBUG;WindowsCE,COMPACT_FRAMEWORK,SSL</DefineConstants>
+    <DefineConstants>TRACE;DEBUG;WindowsCE,COMPACT_FRAMEWORK,SSL,TRACE</DefineConstants>
     <NoStdLib>true</NoStdLib>
     <NoConfig>true</NoConfig>
     <ErrorReport>prompt</ErrorReport>
