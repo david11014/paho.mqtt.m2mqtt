@@ -1381,6 +1381,9 @@ namespace uPLibrary.Networking.M2Mqtt
             Fx.SetThreadProcessor( this.ProcessorNumber );
             bThreadStart = true;
 
+            // set thread as background
+            Thread.CurrentThread.IsBackground = true;
+
             int readBytes = 0;
             byte[] fixedHeaderFirstByte = new byte[1];
             byte msgType;
@@ -1677,6 +1680,9 @@ namespace uPLibrary.Networking.M2Mqtt
             Fx.SetThreadProcessor( this.ProcessorNumber );
             bThreadStart = true;
 
+            // set thread as background
+            Thread.CurrentThread.IsBackground = true;
+
             int delta = 0;
             int wait = this.keepAlivePeriod;
             
@@ -1729,6 +1735,9 @@ namespace uPLibrary.Networking.M2Mqtt
             // set thread process number
             Fx.SetThreadProcessor( this.ProcessorNumber );
             bThreadStart = true;
+
+            // set thread as background
+            Thread.CurrentThread.IsBackground = true;
 
             while (this.isRunning)
             {
@@ -1900,6 +1909,9 @@ namespace uPLibrary.Networking.M2Mqtt
             // set thread process number
             Fx.SetThreadProcessor( this.ProcessorNumber );
             bThreadStart = true;
+
+            // set thread as background
+            Thread.CurrentThread.IsBackground = true;
 
             MqttMsgContext msgContext = null;
             MqttMsgBase msgInflight = null;
