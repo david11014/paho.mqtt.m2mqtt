@@ -1,3 +1,19 @@
+# M2Mqtt for CE7
+This project is modify from M2MQTT, let this library can run in CE7 environment and support SSL/TLS
+The project use OpenSSL and Winsock2
+
+How to build CE7 version OpenSSL please refer https://qiita.com/souju/items/94117c024862f57459c3#build-openssl
+
+It also dependance with [wcecompat](https://github.com/mauricek/wcecompat) project header because of openssl header
+
+lib and header setting
+
+* Add OpensSSL lib file libcrypto.lib libssl.lib in {Solution folder}\ExtLib_WCE700ARM\openssl
+
+* Add OpensSSL header file {Solution folder}\ExtLibInc\openssl
+
+* Add wcecompat header file {Solution folder}\ExtLibInc\wcecompat
+
 # M2Mqtt
 
 ![](images/M2Mqtt_Short_Logo.png)

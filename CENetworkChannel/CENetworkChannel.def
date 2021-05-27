@@ -1,0 +1,12 @@
+; OCTest.def : Declares the module parameters for the DLL.
+
+LIBRARY      CENetWorkChannel.DLL
+
+EXPORTS
+	InitNetworkChannel
+	DeinitNetworkChannel
+	Receive
+	Send
+	Close
+	Connect
+	SetThreadProcessor
