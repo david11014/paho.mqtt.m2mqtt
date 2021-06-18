@@ -130,6 +130,12 @@ INT CSSLSocket::Receive( BYTE buffer[], INT nLength, INT timeout )
 			return -1;
 		}
 	}
+
+	// no data
+	if( nTotalRead == 0 ) {
+		return 0;
+	}
+
 	// record receive data
 	PutDataToQueue( m_ReceiveBuffer, nTotalRead );
 
